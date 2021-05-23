@@ -431,6 +431,14 @@ typedef struct wasmer_wasi_map_dir_entry_t {
 extern "C" {
 #endif // __cplusplus
 
+#if defined(WASMER_WASI_ENABLED)
+void wasi_env_write_stdin(wasi_env_t *env, const uint8_t *buffer, uintptr_t buffer_len);
+#endif
+
+#if defined(WASMER_WASI_ENABLED)
+void wasi_overwrite_stdin(wasi_config_t *config);
+#endif
+
 /**
  * Creates a new Module from the given wasm bytes.
  *

@@ -751,6 +751,10 @@ void wasi_env_set_memory(struct wasi_env_t *_env,
 #endif
 
 #if defined(WASMER_WASI_ENABLED)
+void wasi_env_write_stdin(struct wasi_env_t *env, const uint8_t *buffer, uintptr_t buffer_len);
+#endif
+
+#if defined(WASMER_WASI_ENABLED)
 bool wasi_get_imports(const wasm_store_t *store,
                       const wasm_module_t *module,
                       const struct wasi_env_t *wasi_env,
@@ -770,6 +774,10 @@ bool wasi_get_unordered_imports(const wasm_store_t *store,
 
 #if defined(WASMER_WASI_ENABLED)
 enum wasi_version_t wasi_get_wasi_version(const wasm_module_t *module);
+#endif
+
+#if defined(WASMER_WASI_ENABLED)
+void wasi_overwrite_stdin(struct wasi_config_t *config);
 #endif
 
 void wasm_config_push_middleware(wasm_config_t *config, struct wasmer_middleware_t *middleware);

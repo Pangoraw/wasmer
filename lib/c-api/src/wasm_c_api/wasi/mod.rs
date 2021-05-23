@@ -19,7 +19,7 @@ use std::os::raw::c_char;
 use std::slice;
 use wasmer::{Extern, NamedResolver};
 use wasmer_wasi::{
-    generate_import_object_from_env, get_wasi_version, WasiEnv, WasiFile, WasiState,
+    generate_import_object_from_env, get_wasi_version, Pipe, WasiEnv, WasiFile, WasiState,
     WasiStateBuilder, WasiVersion,
 };
 
@@ -153,6 +153,12 @@ pub extern "C" fn wasi_config_inherit_stderr(config: &mut wasi_config_t) {
     config.inherit_stderr = true;
 }
 
+#[no_mangle]
+pub extern "C" fn wasi_overwrite_stdin(config: &mut wasi_config_t) {
+    let piped_stdin = Box::new(Pipe::new());
+    config.state_builder.stdin(piped_stdin);
+}
+
 //#[no_mangle]
 //pub extern "C" fn wasi_config_capture_stdin(config: &mut wasi_config_t) {
 //    config.inherit_stdin = false;
@@ -266,6 +272,19 @@ pub unsafe extern "C" fn wasi_env_read_stderr(
         return -1;
     };
     read_inner(stderr, inner_buffer)
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn wasi_env_write_stdin(
+    env: &mut wasi_env_t,
+    buffer: *const u8,
+    buffer_len: usize
+) {
+    let mut state = env.inner.state();
+    let wasi_stdin = state.fs.stdin_mut().unwrap().as_mut().unwrap();
+    let buffer = slice::from_raw_parts(buffer, buffer_len);
+    let msg = std::str::from_utf8(buffer).unwrap();
+    write!(wasi_stdin, "{}", msg).unwrap();
 }
 
 fn read_inner(wasi_file: &mut Box<dyn WasiFile>, inner_buffer: &mut [u8]) -> isize {
